@@ -1,0 +1,4 @@
+id,description,amount,due_date,confirmed,settled_at,source_id,source_ts
+exp-rent,Studio Lease & Facilities,6200.00,2026-09-15,true,,exp-rent,2026-09-01T00:00:00+00:00
+exp-payroll,Contractor & Core Payroll,19500.00,2026-09-20,true,,exp-payroll,2026-09-01T00:00:00+00:00
+exp-saas,Figma & Adobe Cloud Ops,1850.00,2026-09-28,true,,exp-saas,2026-09-01T00:00:00+00:00

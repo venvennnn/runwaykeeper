@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+pythonpath = [".", "apps/api", "packages/forecasting", "packages/agent"]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+filterwarnings = ["ignore::DeprecationWarning"]
