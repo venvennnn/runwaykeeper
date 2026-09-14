@@ -70,14 +70,21 @@ All 24 unit and integration tests will run with an isolated in-memory/test datab
 
 ### 3. Run Locally
 
-#### Option A: Docker Compose
+#### Option A: Run Full App in Streamlit (Zero-configuration)
+```bash
+streamlit run streamlit_app.py
+```
+This boots the interactive Streamlit dashboard on `http://localhost:8501`, connecting directly to SQLite/Postgres with complete forecasting, Strands agent execution, case inspector, and decision tools.
+
+#### Option B: Docker Compose
 ```bash
 docker compose up --build
 ```
-- Web UI: http://localhost:3000
+- Streamlit UI: http://localhost:8501
+- Next.js Web UI: http://localhost:3000
 - API Docs: http://localhost:8000/docs
 
-#### Option B: Bare Metal Development
+#### Option C: Bare Metal Development
 
 In terminal 1 (API):
 ```bash
@@ -89,10 +96,108 @@ In terminal 2 (Worker):
 DATABASE_URL=sqlite:///runwaykeeper.db python apps/api/worker.py
 ```
 
-In terminal 3 (Web UI):
+In terminal 3 (Streamlit):
 ```bash
-cd apps/web && pnpm dev
+streamlit run streamlit_app.py
 ```
+
+---
+
+## Deployment Guide (Online Production)
+
+RunwayKeeper supports two primary online deployment approaches:
+
+### Deployment Approach 1: Streamlit Community Cloud (Easiest & Free)
+
+Deploy the entire RunwayKeeper application online in 60 seconds with **Streamlit Community Cloud**:
+
+1. Fork or push this repository to GitHub.
+2. Sign in to [share.streamlit.io](https://share.streamlit.io).
+3. Click **New app** and select your repository: `venvennnn/runwaykeeper`.
+4. Configure settings:
+   - **Main file path**: `streamlit_app.py`
+5. Click **Deploy!**
+   - Streamlit will install all dependencies from `apps/api/requirements.txt` and `packages/` automatically.
+   - It will boot with SQLite and the pre-loaded Harbour Studio seed data, fully functioning with interactive forecasting, Strands tool execution, exception decisioning, and email simulations.
+
+---
+
+### Deployment Approach 2: Render Blueprint (Full Multi-Service Stack)
+
+This repository includes a `render.yaml` Blueprint specification that automatically configures:
+- A managed PostgreSQL database (`runwaykeeper-db`)
+- The Streamlit web dashboard (`runwaykeeper-streamlit`)
+- The FastAPI REST backend (`runwaykeeper-api`)
+- The asynchronous polling worker (`runwaykeeper-worker`)
+
+**Instructions**:
+1. Fork or push this repository to GitHub.
+2. Sign in to [Render](https://render.com) and click **New +** → **Blueprint**.
+3. Connect your GitHub repository (`runwaykeeper`). Render will read `render.yaml`.
+4. In the setup review screen, supply any optional secrets:
+   - `AWS_ACCESS_KEY_ID` & `AWS_SECRET_ACCESS_KEY` (if using Amazon Bedrock for LLM reasoning; if left blank, RunwayKeeper executes deterministically through Strands tool policy).
+   - `RESEND_API_KEY` & `RESEND_WEBHOOK_SECRET` (if connecting live email delivery; defaults to simulation mode).
+5. Click **Apply**. Render will provision Postgres, build both services, run Alembic table initialization, and seed the demo workspace.
+6. Open your Streamlit Web URL (e.g. `https://runwaykeeper-streamlit.onrender.com`).
+
+---
+
+### Deployment Approach 3: Next.js Frontend on Vercel
+
+If you prefer using the Next.js frontend:
+1. Import `venvennnn/runwaykeeper` on [Vercel](https://vercel.com).
+2. Set Root Directory to `apps/web`.
+3. Set `NEXT_PUBLIC_API_URL` to your deployed FastAPI backend URL.
+4. Click Deploy.
+- A managed PostgreSQL database (`runwaykeeper-db`)
+- The FastAPI REST backend (`runwaykeeper-api`)
+- The asynchronous polling worker (`runwaykeeper-worker`)
+
+**Instructions**:
+1. Fork or push this repository to GitHub.
+2. Sign in to [Render](https://render.com) and click **New +** → **Blueprint**.
+3. Connect your GitHub repository (`runwaykeeper`). Render will read `render.yaml`.
+4. In the setup review screen, supply any optional secrets:
+   - `AWS_ACCESS_KEY_ID` & `AWS_SECRET_ACCESS_KEY` (if using Amazon Bedrock for LLM reasoning; if left blank, RunwayKeeper executes deterministically through Strands tool policy).
+   - `RESEND_API_KEY` & `RESEND_WEBHOOK_SECRET` (if connecting live email delivery; defaults to simulation mode).
+5. Click **Apply**. Render will provision Postgres, build both services, run Alembic table initialization, and seed the demo workspace.
+6. Copy your public API URL (e.g., `https://runwaykeeper-api.onrender.com`).
+
+---
+
+### Step 2: Deploy Frontend on Vercel
+
+1. Sign in to [Vercel](https://vercel.com) and click **Add New...** → **Project**.
+2. Select your `runwaykeeper` repository.
+3. Configure the project settings:
+   - **Framework Preset**: Next.js
+   - **Root Directory**: `apps/web` (click Edit and select `apps/web`)
+4. Add the following **Environment Variables**:
+   - `NEXT_PUBLIC_API_URL`: Your Render backend URL (e.g. `https://runwaykeeper-api.onrender.com`)
+   - `NEXT_PUBLIC_DEMO_KEY`: `rk_demo_harbor_studio`
+5. Click **Deploy**. Vercel will install dependencies with `pnpm` and build the production dashboard.
+6. (Optional) In Render, update `CORS_ORIGINS` on `runwaykeeper-api` with your Vercel production domain (e.g. `https://runwaykeeper.vercel.app`).
+
+---
+
+### Alternative: Single-Host Docker Deployment (VPS / EC2 / DigitalOcean)
+
+To deploy the full stack on any single Linux server:
+
+1. Clone the repository onto the server:
+   ```bash
+   git clone https://github.com/venvennnn/runwaykeeper.git
+   cd runwaykeeper
+   ```
+2. Set environment variables in a `.env` file or export them:
+   ```bash
+   export NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+   ```
+3. Run the container cluster:
+   ```bash
+   docker compose up -d --build
+   ```
+4. Point a reverse proxy (Caddy or Nginx) to port `3000` (web) and port `8000` (API).
 
 ---
 

@@ -58,5 +58,19 @@ services:
     depends_on:
       - api
 
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://runway:runway_password@db:5432/runwaykeeper
+      WORKSPACE_MODE: simulation
+    ports:
+      - "8501:8501"
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pgdata:
