@@ -1,0 +1,5 @@
+id,display_name,email,email_verified,contact_permission,timezone,source_id,source_ts
+cust-northwind,Northwind Digital,ap@northwind.test,true,true,America/New_York,cust-northwind,2026-09-01T00:00:00+00:00
+cust-solaris,Solaris Media,billing@solaris.test,true,true,America/New_York,cust-solaris,2026-09-01T00:00:00+00:00
+cust-brightlane,Brightlane Studio,payables@brightlane.test,true,true,America/Chicago,cust-brightlane,2026-09-01T00:00:00+00:00
+cust-lumen,Lumen Systems,accounts@lumen.test,true,true,America/Los_Angeles,cust-lumen,2026-09-01T00:00:00+00:00

@@ -1,0 +1,5 @@
+id,customer_id,issue_date,due_date,currency,gross_amount,external_reference,source_id,source_ts
+inv-1042,cust-northwind,2026-08-01,2026-08-31,USD,18400.00,INV-1042,inv-1042,2026-08-01T00:00:00+00:00
+inv-1089,cust-solaris,2026-08-10,2026-09-09,USD,9200.00,INV-1089,inv-1089,2026-08-10T00:00:00+00:00
+inv-1108,cust-lumen,2026-08-25,2026-09-24,USD,3100.00,INV-1108,inv-1108,2026-08-25T00:00:00+00:00
+inv-1112,cust-brightlane,2026-09-01,2026-10-01,USD,14500.00,INV-1112,inv-1112,2026-09-01T00:00:00+00:00

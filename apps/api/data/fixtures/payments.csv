@@ -1,0 +1,3 @@
+id,customer_id,amount,currency,reference,settled_at,source_id,source_ts
+pay-901,cust-northwind,18400.00,USD,INV-1042,2026-09-08T14:20:00+00:00,pay-901,2026-09-08T14:20:00+00:00
+pay-902,cust-brightlane,5000.00,USD,Deposit on INV-1112,2026-09-05T09:15:00+00:00,pay-902,2026-09-05T09:15:00+00:00

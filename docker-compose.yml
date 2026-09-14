@@ -1,0 +1,62 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: runway
+      POSTGRES_PASSWORD: runway_password
+      POSTGRES_DB: runwaykeeper
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U runway -d runwaykeeper"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://runway:runway_password@db:5432/runwaykeeper
+      PORT: "8000"
+      WORKSPACE_MODE: simulation
+      RESEND_API_KEY: ""
+      RESEND_WEBHOOK_SECRET: ""
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: python -m worker
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://runway:runway_password@db:5432/runwaykeeper
+      WORKSPACE_MODE: simulation
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: apps/web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
