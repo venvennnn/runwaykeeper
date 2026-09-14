@@ -96,6 +96,69 @@ cd apps/web && pnpm dev
 
 ---
 
+## Deployment Guide (Online Production)
+
+RunwayKeeper consists of three components:
+1. **Database & Backend API & Worker**: PostgreSQL + FastAPI + Background Worker (recommended on **Render**, **Railway**, or **Fly.io**).
+2. **Frontend UI**: Next.js 14 Web App (recommended on **Vercel**).
+
+---
+
+### Step 1: Deploy Backend & Worker on Render (Blueprint)
+
+This repository includes a `render.yaml` Blueprint specification that automatically configures:
+- A managed PostgreSQL database (`runwaykeeper-db`)
+- The FastAPI REST backend (`runwaykeeper-api`)
+- The asynchronous polling worker (`runwaykeeper-worker`)
+
+**Instructions**:
+1. Fork or push this repository to GitHub.
+2. Sign in to [Render](https://render.com) and click **New +** → **Blueprint**.
+3. Connect your GitHub repository (`runwaykeeper`). Render will read `render.yaml`.
+4. In the setup review screen, supply any optional secrets:
+   - `AWS_ACCESS_KEY_ID` & `AWS_SECRET_ACCESS_KEY` (if using Amazon Bedrock for LLM reasoning; if left blank, RunwayKeeper executes deterministically through Strands tool policy).
+   - `RESEND_API_KEY` & `RESEND_WEBHOOK_SECRET` (if connecting live email delivery; defaults to simulation mode).
+5. Click **Apply**. Render will provision Postgres, build both services, run Alembic table initialization, and seed the demo workspace.
+6. Copy your public API URL (e.g., `https://runwaykeeper-api.onrender.com`).
+
+---
+
+### Step 2: Deploy Frontend on Vercel
+
+1. Sign in to [Vercel](https://vercel.com) and click **Add New...** → **Project**.
+2. Select your `runwaykeeper` repository.
+3. Configure the project settings:
+   - **Framework Preset**: Next.js
+   - **Root Directory**: `apps/web` (click Edit and select `apps/web`)
+4. Add the following **Environment Variables**:
+   - `NEXT_PUBLIC_API_URL`: Your Render backend URL (e.g. `https://runwaykeeper-api.onrender.com`)
+   - `NEXT_PUBLIC_DEMO_KEY`: `rk_demo_harbor_studio`
+5. Click **Deploy**. Vercel will install dependencies with `pnpm` and build the production dashboard.
+6. (Optional) In Render, update `CORS_ORIGINS` on `runwaykeeper-api` with your Vercel production domain (e.g. `https://runwaykeeper.vercel.app`).
+
+---
+
+### Alternative: Single-Host Docker Deployment (VPS / EC2 / DigitalOcean)
+
+To deploy the full stack on any single Linux server:
+
+1. Clone the repository onto the server:
+   ```bash
+   git clone https://github.com/venvennnn/runwaykeeper.git
+   cd runwaykeeper
+   ```
+2. Set environment variables in a `.env` file or export them:
+   ```bash
+   export NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+   ```
+3. Run the container cluster:
+   ```bash
+   docker compose up -d --build
+   ```
+4. Point a reverse proxy (Caddy or Nginx) to port `3000` (web) and port `8000` (API).
+
+---
+
 ## Strands Agent Tools
 
 RunwayKeeper registers custom Strands tools (`packages/agent/runwaykeeper_agent/tools.py`):
